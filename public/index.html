@@ -35,6 +35,15 @@ nav{position:sticky;top:0;z-index:50;background:rgba(6,7,13,.86);backdrop-filter
 .vbtn.on{background:var(--blue-bg);border-color:var(--blue);color:var(--blue-l)}
 .submit{background:var(--blue);color:#fff;border:none;border-radius:999px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;margin-left:6px}
 .submit:hover{background:#2a94ff}
+.own-links button{font-size:12px;border:1px solid var(--line2);border-radius:999px;padding:5px 13px;color:var(--sub);background:none;cursor:pointer}
+.own-links button:hover{color:var(--blue-l);border-color:var(--blue)}
+.form-grid{display:grid;gap:12px;margin-top:14px}
+.form-grid label{display:grid;gap:5px;font-size:12px;color:var(--mut)}
+.form-grid input,.form-grid textarea{background:var(--bg2);border:1px solid var(--line2);border-radius:10px;padding:10px 12px;color:var(--txt);font-family:var(--sans);font-size:13px}
+.form-grid textarea{min-height:88px;resize:vertical}
+.form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+.form-actions .ghost{background:none;border:1px solid var(--line2);color:var(--sub);border-radius:999px;padding:8px 16px;cursor:pointer}
+.form-note{font-size:12px;color:var(--mut);margin-top:8px}
 /* hero */
 .hero{position:relative;border-bottom:1px solid var(--line);overflow:hidden}
 .hero canvas{display:block;width:100%;height:320px}
@@ -122,7 +131,7 @@ footer{border-top:1px solid var(--line);margin-top:50px;padding:20px 0 30px}
     <button class="vbtn on" id="v-owner" onclick="setView('owner')">By owner</button>
     <button class="vbtn" id="v-all" onclick="setView('all')">All demos</button>
     <button class="vbtn" id="sync-btn" type="button" onclick="runSync()" title="Pull latest sheet data into this site">Sync sheet</button>
-    <button class="submit" onclick="window.open(SHEET_URL,'_blank')">Submit a demo</button>
+    <button class="submit" type="button" onclick="openProfileEditor()">✎ Add profile</button>
   </div>
 </div></nav>
 
@@ -148,7 +157,7 @@ footer{border-top:1px solid var(--line);margin-top:50px;padding:20px 0 30px}
   <div class="count" id="count"></div>
   <div id="content"></div>
   <footer><div class="foot">
-    <span>Solutions Team Demo Showcase · synced from the <a id="sheetlink" href="#" target="_blank" rel="noopener">Demo Tracker sheet</a></span>
+    <span>Solutions Team Demo Showcase · DigitalOcean Solutions</span>
     <span id="foot-stats"></span>
   </div></footer>
 </div>
@@ -158,8 +167,6 @@ footer{border-top:1px solid var(--line);margin-top:50px;padding:20px 0 30px}
 </div>
 
 <script>
-const SHEET_URL="https://docs.google.com/spreadsheets/d/1AUYS2mF28aLeHb8LSq6FNXZD9lM7Qva4ey4t79vGHJo/edit";
-document.getElementById('sheetlink').href=SHEET_URL;
 let DATA=[];
 let CONTENT=[];
 let PROFILES={};
@@ -171,7 +178,6 @@ async function loadCatalog(){
   DATA = payload.demos || [];
   CONTENT = payload.content || [];
   PROFILES = payload.profiles || {};
-  if (payload.sheetUrl) document.getElementById('sheetlink').href = payload.sheetUrl;
   initFilters();
   apply();
 }
@@ -309,7 +315,7 @@ function applyContent(){
   const list=CONTENT.filter(d=>(!o||d.owner===o)&&(!ind||d.industry===ind)&&(!pr||products(d).includes(pr))&&(!q||[d.title,d.use_case,d.owner,d.products,d.industry].join(' ').toLowerCase().includes(q)));
   document.getElementById('count').textContent=list.length+' of '+CONTENT.length+' posts & articles';
   const c=document.getElementById('content');
-  if(!CONTENT.length){c.innerHTML='<div class="empty">No blog posts or KB articles yet — add rows to the Blog post and KB tabs in the tracker sheet.</div>';return}
+  if(!CONTENT.length){c.innerHTML='<div class="empty">No blog posts or KB articles yet.</div>';return}
   if(!list.length){c.innerHTML='<div class="empty">Nothing matches these filters. Try clearing one.</div>';return}
   const groups={};
   list.forEach(d=>{(groups[d.owner]=groups[d.owner]||[]).push(d)});
@@ -333,12 +339,74 @@ function apply(){
     c.innerHTML=Object.keys(groups).sort((a,b)=>a.localeCompare(b)).map(o=>{
       const g=groups[o],pf=PROFILES[o]||{};
       const avatar=pf.photo?'<img src="'+esc(pf.photo)+'" alt="">':esc(initials(o));
-      const links=(pf.linkedin?'<a href="'+esc(pf.linkedin)+'" target="_blank" rel="noopener">in LinkedIn</a>':'')+(pf.github?'<a href="'+esc(pf.github)+'" target="_blank" rel="noopener">⌥ GitHub</a>':'')+'<a href="'+SHEET_URL+'" target="_blank" rel="noopener">✎ '+(pf.bio?'Edit profile':'Add profile')+'</a>';
+      const links=(pf.linkedin?'<a href="'+esc(pf.linkedin)+'" target="_blank" rel="noopener">in LinkedIn</a>':'')+(pf.github?'<a href="'+esc(pf.github)+'" target="_blank" rel="noopener">⌥ GitHub</a>':'')+'<button type="button" onclick="openProfileEditor('+JSON.stringify(o)+')">✎ '+(pf.title||pf.bio||pf.location?'Edit profile':'Add profile')+'</button>';
       return '<div class="own"><div class="av">'+avatar+'</div><div><div class="own-n">'+esc(o)+'</div><div class="own-m">'+esc(pf.title||'Solutions Architect')+(pf.location?' · '+esc(pf.location):'')+' · '+g.length+' demo'+(g.length>1?'s':'')+'</div></div><div class="own-links">'+links+'</div></div>'+
         (pf.bio?'<div class="own-bio">'+esc(pf.bio)+'</div>':'')+
         '<div class="grid">'+g.map(d=>cardHTML(d,DATA.indexOf(d),false)).join('')+'</div>';
     }).join('');
   }
+}
+
+function openProfileEditor(name){
+  const n = name || '';
+  const pf = PROFILES[n] || {};
+  document.getElementById('modal').innerHTML =
+    '<button class="mclose" onclick="closeM()" aria-label="Close">✕</button>'+
+    '<h2>'+(n && (pf.title||pf.bio||pf.location) ? 'Edit profile' : 'Add profile')+'</h2>'+
+    '<div class="m-owner">Solutions Architect profile shown on the hub</div>'+
+    '<form class="form-grid" id="profile-form" onsubmit="return saveProfile(event)">'+
+    '<label>Name<input name="name" required value="'+esc(n)+'" placeholder="Full name"></label>'+
+    '<label>Title / role<input name="title" value="'+esc(pf.title||'')+'" placeholder="Solutions Architect"></label>'+
+    '<label>Location<input name="location" value="'+esc(pf.location||'')+'" placeholder="City, country"></label>'+
+    '<label>Bio<textarea name="bio" placeholder="Short intro">'+esc(pf.bio||'')+'</textarea></label>'+
+    '<label>Photo URL<input name="photo" value="'+esc(pf.photo||'')+'" placeholder="https://…"></label>'+
+    '<label>LinkedIn URL<input name="linkedin" value="'+esc(pf.linkedin||'')+'" placeholder="https://linkedin.com/in/…"></label>'+
+    '<label>GitHub URL<input name="github" value="'+esc(pf.github||'')+'" placeholder="https://github.com/…"></label>'+
+    '<div class="form-note">Saving requires the site sync key (same as Sync sheet).</div>'+
+    '<div class="form-actions"><button type="button" class="ghost" onclick="closeM()">Cancel</button><button type="submit" class="submit" style="margin:0">Save profile</button></div>'+
+    '</form>';
+  document.getElementById('mwrap').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+async function saveProfile(ev){
+  ev.preventDefault();
+  const form = ev.target;
+  const fd = new FormData(form);
+  const body = Object.fromEntries(fd.entries());
+  let secret = syncSecret();
+  if (!secret) {
+    secret = window.prompt('Enter sync key (App Platform SYNC_SECRET):', '') || '';
+    if (!secret) return false;
+    sessionStorage.setItem('sdh_sync_secret', secret);
+  }
+  const btn = form.querySelector('button[type="submit"]');
+  const prev = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+  try {
+    const res = await fetch('/api/profiles', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + secret,
+      },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.status === 401) {
+      sessionStorage.removeItem('sdh_sync_secret');
+      throw new Error('Wrong sync key');
+    }
+    if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
+    await loadCatalog();
+    closeM();
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = prev;
+    window.alert('Could not save profile: ' + (err.message || err));
+  }
+  return false;
 }
 
 function openM(i){

@@ -278,4 +278,42 @@ async function getCatalog({ force = false } = {}) {
   return { ...payload, cached: false };
 }
 
-module.exports = { getCatalog, SHEET_URL, SHEET_ID };
+function isHttpUrl(u) {
+  return /^https?:\/\//i.test(String(u || '').trim());
+}
+
+/** Persist an SA profile into data/profiles.json and refresh in-memory catalog. */
+async function upsertProfile(input = {}) {
+  const name = cell(input.name);
+  if (!name) throw new Error('name is required');
+
+  const profile = {
+    title: cell(input.title) || 'Solutions Architect',
+    location: cell(input.location),
+    bio: cell(input.bio),
+    photo: isHttpUrl(input.photo) ? cell(input.photo) : '',
+    linkedin: isHttpUrl(input.linkedin) ? cell(input.linkedin) : '',
+    github: isHttpUrl(input.github) ? cell(input.github) : '',
+  };
+
+  const file = path.join(DATA_DIR, 'profiles.json');
+  let profiles = {};
+  try {
+    profiles = JSON.parse(fs.readFileSync(file, 'utf8'));
+  } catch {
+    profiles = {};
+  }
+  if (!profiles || typeof profiles !== 'object' || Array.isArray(profiles)) {
+    profiles = {};
+  }
+  profiles[name] = profile;
+  fs.writeFileSync(file, `${JSON.stringify(profiles, null, 2)}\n`, 'utf8');
+
+  const catalog = await getCatalog({ force: true });
+  // Prefer the just-written profiles over sheet/local rebuild race.
+  catalog.profiles = { ...catalog.profiles, ...profiles };
+  cache = { at: Date.now(), payload: catalog, source: catalog.source };
+  return { name, profile, profiles };
+}
+
+module.exports = { getCatalog, upsertProfile, SHEET_URL, SHEET_ID };

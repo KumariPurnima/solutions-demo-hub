@@ -25,25 +25,14 @@ button{font-family:var(--sans)}
 .wrap{max-width:1180px;margin:0 auto;padding:0 28px}
 /* nav */
 nav{position:sticky;top:0;z-index:50;background:rgba(6,7,13,.86);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
-.nav-in{display:flex;align-items:center;justify-content:space-between;height:60px}
-.brand{display:flex;align-items:center;gap:11px;font-family:var(--disp);font-weight:600;font-size:16px;color:var(--txt)}
+.nav-in{display:flex;align-items:center;justify-content:space-between;height:60px;gap:12px}
+.brand{display:flex;align-items:center;gap:11px;font-family:var(--disp);font-weight:600;font-size:16px;color:var(--txt);white-space:nowrap}
 .domark{width:28px;height:28px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .domark i{width:12px;height:12px;border-radius:50% 50% 0 50%;background:var(--bg);transform:rotate(45deg);display:block}
-.nav-r{display:flex;gap:8px;align-items:center}
+.nav-r{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
 .vbtn{background:none;border:1px solid var(--line2);color:var(--sub);border-radius:999px;padding:7px 16px;font-size:13px;cursor:pointer;transition:.15s}
 .vbtn:hover{color:var(--txt);border-color:var(--blue)}
 .vbtn.on{background:var(--blue-bg);border-color:var(--blue);color:var(--blue-l)}
-.submit{background:var(--blue);color:#fff;border:none;border-radius:999px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;margin-left:6px}
-.submit:hover{background:#2a94ff}
-.own-links button{font-size:12px;border:1px solid var(--line2);border-radius:999px;padding:5px 13px;color:var(--sub);background:none;cursor:pointer}
-.own-links button:hover{color:var(--blue-l);border-color:var(--blue)}
-.form-grid{display:grid;gap:12px;margin-top:14px}
-.form-grid label{display:grid;gap:5px;font-size:12px;color:var(--mut)}
-.form-grid input,.form-grid textarea{background:var(--bg2);border:1px solid var(--line2);border-radius:10px;padding:10px 12px;color:var(--txt);font-family:var(--sans);font-size:13px}
-.form-grid textarea{min-height:88px;resize:vertical}
-.form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
-.form-actions .ghost{background:none;border:1px solid var(--line2);color:var(--sub);border-radius:999px;padding:8px 16px;cursor:pointer}
-.form-note{font-size:12px;color:var(--mut);margin-top:8px}
 /* hero */
 .hero{position:relative;border-bottom:1px solid var(--line);overflow:hidden}
 .hero canvas{display:block;width:100%;height:320px}
@@ -51,6 +40,9 @@ nav{position:sticky;top:0;z-index:50;background:rgba(6,7,13,.86);backdrop-filter
 .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:3px;color:var(--blue);margin-bottom:12px}
 h1{font-family:var(--disp);font-size:clamp(30px,5vw,46px);font-weight:700;line-height:1.1;text-wrap:balance}
 .hero-sub{color:var(--sub);max-width:520px;margin-top:12px;font-size:15px}
+.sec-head{margin:28px 0 8px}
+.sec-head h2{font-family:var(--disp);font-size:28px;font-weight:700}
+.sec-head p{color:var(--sub);font-size:14px;margin-top:6px;max-width:56ch}
 /* stats */
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;padding:22px 0;border-bottom:1px solid var(--line)}
 .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 18px}
@@ -71,12 +63,31 @@ h1{font-family:var(--disp);font-size:clamp(30px,5vw,46px);font-weight:700;line-h
 .own{display:flex;align-items:center;gap:14px;margin:30px 0 16px}
 .av{width:44px;height:44px;border-radius:50%;background:var(--blue-bg);border:1.5px solid var(--blue);color:var(--blue-l);display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-weight:600;font-size:14px;flex-shrink:0;overflow:hidden}
 .av img{width:100%;height:100%;object-fit:cover}
+.av.lg{width:72px;height:72px;font-size:22px}
 .own-n{font-family:var(--disp);font-weight:600;font-size:16px}
+.own-n.btn,.owner-link{background:none;border:none;padding:0;color:inherit;font:inherit;cursor:pointer;text-align:left}
+.own-n.btn:hover,.owner-link:hover{color:var(--blue-l);text-decoration:underline}
 .own-m{font-size:12px;color:var(--mut)}
 .own-links{margin-left:auto;display:flex;gap:8px}
 .own-links a{font-size:12px;border:1px solid var(--line2);border-radius:999px;padding:5px 13px;color:var(--sub)}
 .own-links a:hover{color:var(--blue-l);border-color:var(--blue);text-decoration:none}
 .own-bio{font-size:13px;color:var(--sub);max-width:70ch;margin:-6px 0 16px 58px}
+/* sharks */
+.shark-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-top:18px}
+.shark{
+  background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px 22px 20px;
+  scroll-margin-top:88px;transition:border-color .15s, box-shadow .2s;
+}
+.shark:target,.shark.flash{border-color:var(--blue);box-shadow:0 0 0 1px rgba(0,128,255,.35)}
+.shark-top{display:flex;gap:16px;align-items:flex-start}
+.shark h3{font-family:var(--disp);font-size:18px;font-weight:700;line-height:1.25}
+.shark .role{font-size:13px;color:var(--blue-l);margin-top:4px}
+.shark .loc{font-size:12px;color:var(--mut);margin-top:2px}
+.shark .bio{font-size:13px;color:var(--sub);margin-top:14px;line-height:1.55}
+.shark .links{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.shark .links a{font-size:12px;border:1px solid var(--line2);border-radius:999px;padding:6px 12px;color:var(--sub)}
+.shark .links a:hover{color:var(--blue-l);border-color:var(--blue);text-decoration:none}
+.shark .demo-n{font-family:var(--mono);font-size:11px;color:var(--mut);margin-top:14px}
 /* grid + cards */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;cursor:pointer;transition:border-color .15s,transform .15s;display:flex;flex-direction:column}
@@ -94,8 +105,9 @@ h1{font-family:var(--disp);font-size:clamp(30px,5vw,46px);font-weight:700;line-h
 .tags{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 12px}
 .tag{font-size:11px;padding:3px 10px;border-radius:999px;background:var(--blue-bg);color:var(--blue-l)}
 .tag.ind{background:#161A2A;color:var(--sub)}
-.card-f{display:flex;gap:14px;font-size:12.5px;border-top:1px solid var(--line);padding-top:11px;margin-top:auto}
+.card-f{display:flex;gap:14px;font-size:12.5px;border-top:1px solid var(--line);padding-top:11px;margin-top:auto;align-items:center;flex-wrap:wrap}
 .card-f .by{color:var(--mut);margin-left:auto}
+.card-f .by.owner-link{color:var(--sub)}
 /* modal */
 .mwrap{position:fixed;inset:0;z-index:100;background:rgba(3,4,9,.75);backdrop-filter:blur(6px);display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:5vh 16px 40px}
 .mwrap.open{display:flex}
@@ -106,17 +118,20 @@ h1{font-family:var(--disp);font-size:clamp(30px,5vw,46px);font-weight:700;line-h
 .m-sec h4{font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--mut);margin-bottom:5px;text-transform:uppercase}
 .m-sec div{font-size:13.5px;color:#C6CCE0;white-space:pre-line}
 .m-links{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0 4px}
-.m-links a{border:1px solid var(--line2);border-radius:999px;padding:8px 18px;font-size:13px}
+.m-links a,.m-links button{border:1px solid var(--line2);border-radius:999px;padding:8px 18px;font-size:13px;background:none;color:var(--sub);cursor:pointer}
 .m-links a.pri{background:var(--blue);color:#fff;border-color:var(--blue)}
-.m-links a:hover{text-decoration:none;border-color:var(--blue)}
+.m-links a:hover,.m-links button:hover{text-decoration:none;border-color:var(--blue);color:var(--blue-l)}
 .mclose{float:right;background:none;border:1px solid var(--line2);color:var(--sub);border-radius:999px;width:32px;height:32px;cursor:pointer;font-size:15px}
 .mclose:hover{color:var(--txt);border-color:var(--blue)}
 /* footer */
 footer{border-top:1px solid var(--line);margin-top:50px;padding:20px 0 30px}
 .foot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--mut)}
 .empty{text-align:center;color:var(--mut);padding:60px 0;font-size:14px}
-@media(max-width:640px){.nav-r .vbtn{display:none}.nav-r #sync-btn{display:inline-flex}.own-links{display:none}.own-bio{margin-left:0}}
-@media(prefers-reduced-motion:reduce){.card{transition:none}}
+@media(max-width:720px){
+  .nav-r .vbtn{padding:6px 12px;font-size:12px}
+  .nav-r #sync-btn{display:inline-flex}
+}
+@media(prefers-reduced-motion:reduce){.card{transition:none}.shark{transition:none}}
 :focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 </style>
 
@@ -126,12 +141,12 @@ footer{border-top:1px solid var(--line);margin-top:50px;padding:20px 0 30px}
   <div class="brand"><span class="domark"><i></i></span>Solutions Demo Hub</div>
   <div class="nav-r">
     <button class="vbtn on" id="s-demos" onclick="setSec('demos')">Demos</button>
+    <button class="vbtn" id="s-sharks" onclick="setSec('sharks')">Solution Sharks</button>
     <button class="vbtn" id="s-content" onclick="setSec('content')">Blog &amp; KB</button>
     <span style="width:1px;height:20px;background:var(--line2)"></span>
     <button class="vbtn on" id="v-owner" onclick="setView('owner')">By owner</button>
     <button class="vbtn" id="v-all" onclick="setView('all')">All demos</button>
     <button class="vbtn" id="sync-btn" type="button" onclick="runSync()" title="Pull latest sheet data into this site">Sync sheet</button>
-    <button class="submit" type="button" onclick="openProfileEditor()">✎ Add profile</button>
   </div>
 </div></nav>
 
@@ -146,7 +161,7 @@ footer{border-top:1px solid var(--line);margin-top:50px;padding:20px 0 30px}
 
 <div class="wrap">
   <div class="stats" id="stats"></div>
-  <div class="filters">
+  <div class="filters" id="filters">
     <select id="f-owner" onchange="apply()"></select>
     <select id="f-stage" onchange="apply()"></select>
     <select id="f-ind" onchange="apply()"></select>
@@ -170,6 +185,7 @@ footer{border-top:1px solid var(--line);margin-top:50px;padding:20px 0 30px}
 let DATA=[];
 let CONTENT=[];
 let PROFILES={};
+let pendingShark=null;
 
 async function loadCatalog(){
   const res = await fetch('/api/catalog', { cache: 'no-store' });
@@ -180,6 +196,12 @@ async function loadCatalog(){
   PROFILES = payload.profiles || {};
   initFilters();
   apply();
+  if(pendingShark){
+    const name=pendingShark; pendingShark=null; goToShark(name);
+  } else if(location.hash.startsWith('#shark-')){
+    const el=document.getElementById(location.hash.slice(1));
+    if(el){ setSec('sharks'); setTimeout(()=>scrollToSharkEl(el), 50); }
+  }
 }
 
 function syncSecret(){
@@ -229,14 +251,14 @@ function initFilters(){
   fillSelect('f-ind','Industry / vertical',[...new Set([...DATA.map(d=>d.industry), ...CONTENT.map(d=>d.industry)].filter(Boolean))].sort((a,b)=>a.localeCompare(b)));
   fillSelect('f-prod','Products used',[...new Set(DATA.flatMap(products).concat(CONTENT.flatMap(products)))].sort((a,b)=>a.localeCompare(b)));
   const live=DATA.filter(d=>/live/i.test(d.status)).length, prog=DATA.filter(d=>/progress/i.test(d.status)).length, idea=DATA.length-live-prog;
-  const owners=new Set(DATA.map(d=>d.owner)).size;
+  const owners=sharkNames().length;
   document.getElementById('stats').innerHTML=
     '<div class="stat"><b>'+DATA.length+'</b><span>Total demos</span></div>'+
     '<div class="stat"><b class="ok">'+live+'</b><span>Live</span></div>'+
     '<div class="stat"><b class="warn">'+prog+'</b><span>In progress</span></div>'+
     '<div class="stat"><b class="idea">'+idea+'</b><span>Ideas</span></div>'+
-    '<div class="stat"><b>'+owners+'</b><span>Architects</span></div>';
-  document.getElementById('foot-stats').textContent=DATA.length+' demos · '+live+' live · '+owners+' architects';
+    '<div class="stat"><b>'+owners+'</b><span>Solution Sharks</span></div>';
+  document.getElementById('foot-stats').textContent=DATA.length+' demos · '+live+' live · '+owners+' sharks';
 }
 
 const PRODMAP={"SI":"Serverless Inference","SI.":"Serverless Inference","GPU droplets":"GPU Droplets","AppPlatform":"App Platform","App Platform and Inference router":"App Platform, Inference Router","Managed DB":"Managed DBs","Inference router":"Inference Router"};
@@ -253,14 +275,27 @@ function initials(n){return n.split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUp
 function badge(s){s=(s||'').toLowerCase();if(s==='live')return'<span class="badge b-live">● LIVE</span>';if(s.includes('progress'))return'<span class="badge b-prog">◐ IN PROGRESS</span>';return'<span class="badge b-idea">○ IDEA</span>'}
 function link(u){return u&&/^https?:\/\//.test(u.trim())?u.trim().split(/\s/)[0]:null}
 function esc(t){return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function sharkId(name){return 'shark-'+String(name||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}
+function sharkNames(){
+  const set=new Set([...Object.keys(PROFILES), ...DATA.map(d=>d.owner), ...CONTENT.map(d=>d.owner)].filter(Boolean));
+  return [...set].sort((a,b)=>a.localeCompare(b));
+}
+function ownerLink(name){
+  return '<button type="button" class="owner-link by" onclick="event.stopPropagation();goToShark('+JSON.stringify(name)+')">'+esc(name)+'</button>';
+}
 
 let view='owner', sec='demos';
 function setView(v){view=v;document.getElementById('v-owner').classList.toggle('on',v==='owner');document.getElementById('v-all').classList.toggle('on',v==='all');apply()}
 function setSec(s){
   sec=s;
   document.getElementById('s-demos').classList.toggle('on',s==='demos');
+  document.getElementById('s-sharks').classList.toggle('on',s==='sharks');
   document.getElementById('s-content').classList.toggle('on',s==='content');
-  ['v-owner','v-all','f-stage'].forEach(id=>document.getElementById(id).style.display=s==='demos'?'':'none');
+  const demoOnly = s==='demos';
+  ['v-owner','v-all'].forEach(id=>document.getElementById(id).style.display=demoOnly?'':'none');
+  document.getElementById('f-stage').style.display=demoOnly?'':'none';
+  document.getElementById('filters').style.display=s==='sharks'?'none':'flex';
+  document.getElementById('count').style.display=s==='sharks'?'none':'block';
   apply();
 }
 
@@ -296,7 +331,7 @@ function cardHTML(d,i,showOwner){
       (gh?'<a href="'+esc(gh)+'" target="_blank" rel="noopener" onclick="event.stopPropagation()">⌥ GitHub</a>':'')+
       (rec?'<a href="'+esc(rec)+'" target="_blank" rel="noopener" onclick="event.stopPropagation()">▶ Recording</a>':'')+
       ((!dl&&!gh&&!rec)?'<span style="color:var(--mut)">Links added when live</span>':'')+
-      (showOwner?'<span class="by">'+esc(d.owner)+'</span>':'')+
+      (showOwner?ownerLink(d.owner):'')+
     '</div></div>';
 }
 
@@ -308,7 +343,7 @@ function contentCard(d){
     '<h3>'+esc(d.title)+'</h3><p>'+esc(d.use_case||'')+'</p>'+
     (d.industry?'<div class="meta"><b>Industry:</b> '+esc(d.industry)+'</div>':'')+
     '<div class="tags">'+p.slice(0,4).map(t=>'<span class="tag">'+esc(t)+'</span>').join('')+'</div>'+
-    '<div class="card-f">'+(l?'<a href="'+esc(l)+'" target="_blank" rel="noopener" onclick="event.stopPropagation()">↗ Read</a>':'<span style="color:var(--mut)">Link coming soon</span>')+'<span class="by">'+esc(d.owner)+'</span></div></div>';
+    '<div class="card-f">'+(l?'<a href="'+esc(l)+'" target="_blank" rel="noopener" onclick="event.stopPropagation()">↗ Read</a>':'<span style="color:var(--mut)">Link coming soon</span>')+ownerLink(d.owner)+'</div></div>';
 }
 function applyContent(){
   const o=val('f-owner'),ind=val('f-ind'),pr=val('f-prod'),q=document.getElementById('f-q').value.toLowerCase();
@@ -322,10 +357,39 @@ function applyContent(){
   c.innerHTML=Object.keys(groups).sort((a,b)=>a.localeCompare(b)).map(o2=>{
     const g=groups[o2],pf=PROFILES[o2]||{};
     const avatar=pf.photo?'<img src="'+esc(pf.photo)+'" alt="">':esc(initials(o2));
-    return '<div class="own"><div class="av">'+avatar+'</div><div><div class="own-n">'+esc(o2)+'</div><div class="own-m">'+g.length+' post'+(g.length>1?'s':'')+'</div></div></div><div class="grid">'+g.map(contentCard).join('')+'</div>';
+    return '<div class="own"><div class="av">'+avatar+'</div><div><button type="button" class="own-n btn" onclick="goToShark('+JSON.stringify(o2)+')">'+esc(o2)+'</button><div class="own-m">'+g.length+' post'+(g.length>1?'s':'')+'</div></div></div><div class="grid">'+g.map(contentCard).join('')+'</div>';
   }).join('');
 }
+
+function applySharks(){
+  const names=sharkNames();
+  const c=document.getElementById('content');
+  const demoCount=Object.fromEntries(names.map(n=>[n, DATA.filter(d=>d.owner===n).length]));
+  c.innerHTML=
+    '<div class="sec-head"><h2>Meet Solution Shark</h2><p>Solutions Architects behind the demos — jump here anytime you click an owner name.</p></div>'+
+    (names.length
+      ? '<div class="shark-grid">'+names.map(n=>{
+          const pf=PROFILES[n]||{};
+          const avatar=pf.photo?'<img src="'+esc(pf.photo)+'" alt="">':esc(initials(n));
+          const links=
+            (pf.linkedin?'<a href="'+esc(pf.linkedin)+'" target="_blank" rel="noopener">LinkedIn</a>':'')+
+            (pf.github?'<a href="'+esc(pf.github)+'" target="_blank" rel="noopener">GitHub</a>':'');
+          return '<article class="shark" id="'+sharkId(n)+'">'+
+            '<div class="shark-top"><div class="av lg">'+avatar+'</div><div>'+
+            '<h3>'+esc(n)+'</h3>'+
+            '<div class="role">'+esc(pf.title||'Solutions Architect')+'</div>'+
+            (pf.location?'<div class="loc">'+esc(pf.location)+'</div>':'')+
+            '</div></div>'+
+            (pf.bio?'<p class="bio">'+esc(pf.bio)+'</p>':'<p class="bio" style="color:var(--mut)">Profile details coming soon.</p>')+
+            (links?'<div class="links">'+links+'</div>':'')+
+            '<div class="demo-n">'+(demoCount[n]||0)+' demo'+(demoCount[n]===1?'':'s')+' in the hub</div>'+
+            '</article>';
+        }).join('')+'</div>'
+      : '<div class="empty">No Solution Sharks yet.</div>');
+}
+
 function apply(){
+  if(sec==='sharks'){applySharks();return}
   if(sec==='content'){applyContent();return}
   const list=filtered();
   document.getElementById('count').textContent=list.length+' of '+DATA.length+' demos';
@@ -339,93 +403,53 @@ function apply(){
     c.innerHTML=Object.keys(groups).sort((a,b)=>a.localeCompare(b)).map(o=>{
       const g=groups[o],pf=PROFILES[o]||{};
       const avatar=pf.photo?'<img src="'+esc(pf.photo)+'" alt="">':esc(initials(o));
-      const links=(pf.linkedin?'<a href="'+esc(pf.linkedin)+'" target="_blank" rel="noopener">in LinkedIn</a>':'')+(pf.github?'<a href="'+esc(pf.github)+'" target="_blank" rel="noopener">⌥ GitHub</a>':'')+'<button type="button" onclick="openProfileEditor('+JSON.stringify(o)+')">✎ '+(pf.title||pf.bio||pf.location?'Edit profile':'Add profile')+'</button>';
-      return '<div class="own"><div class="av">'+avatar+'</div><div><div class="own-n">'+esc(o)+'</div><div class="own-m">'+esc(pf.title||'Solutions Architect')+(pf.location?' · '+esc(pf.location):'')+' · '+g.length+' demo'+(g.length>1?'s':'')+'</div></div><div class="own-links">'+links+'</div></div>'+
+      const links=(pf.linkedin?'<a href="'+esc(pf.linkedin)+'" target="_blank" rel="noopener">in LinkedIn</a>':'')+(pf.github?'<a href="'+esc(pf.github)+'" target="_blank" rel="noopener">⌥ GitHub</a>':'');
+      return '<div class="own"><div class="av">'+avatar+'</div><div><button type="button" class="own-n btn" onclick="goToShark('+JSON.stringify(o)+')">'+esc(o)+'</button><div class="own-m">'+esc(pf.title||'Solutions Architect')+(pf.location?' · '+esc(pf.location):'')+' · '+g.length+' demo'+(g.length>1?'s':'')+'</div></div><div class="own-links">'+links+'</div></div>'+
         (pf.bio?'<div class="own-bio">'+esc(pf.bio)+'</div>':'')+
         '<div class="grid">'+g.map(d=>cardHTML(d,DATA.indexOf(d),false)).join('')+'</div>';
     }).join('');
   }
 }
 
-function openProfileEditor(name){
-  const n = name || '';
-  const pf = PROFILES[n] || {};
-  document.getElementById('modal').innerHTML =
-    '<button class="mclose" onclick="closeM()" aria-label="Close">✕</button>'+
-    '<h2>'+(n && (pf.title||pf.bio||pf.location) ? 'Edit profile' : 'Add profile')+'</h2>'+
-    '<div class="m-owner">Solutions Architect profile shown on the hub</div>'+
-    '<form class="form-grid" id="profile-form" onsubmit="return saveProfile(event)">'+
-    '<label>Name<input name="name" required value="'+esc(n)+'" placeholder="Full name"></label>'+
-    '<label>Title / role<input name="title" value="'+esc(pf.title||'')+'" placeholder="Solutions Architect"></label>'+
-    '<label>Location<input name="location" value="'+esc(pf.location||'')+'" placeholder="City, country"></label>'+
-    '<label>Bio<textarea name="bio" placeholder="Short intro">'+esc(pf.bio||'')+'</textarea></label>'+
-    '<label>Photo URL<input name="photo" value="'+esc(pf.photo||'')+'" placeholder="https://…"></label>'+
-    '<label>LinkedIn URL<input name="linkedin" value="'+esc(pf.linkedin||'')+'" placeholder="https://linkedin.com/in/…"></label>'+
-    '<label>GitHub URL<input name="github" value="'+esc(pf.github||'')+'" placeholder="https://github.com/…"></label>'+
-    '<div class="form-note">Saving requires the site sync key (same as Sync sheet).</div>'+
-    '<div class="form-actions"><button type="button" class="ghost" onclick="closeM()">Cancel</button><button type="submit" class="submit" style="margin:0">Save profile</button></div>'+
-    '</form>';
-  document.getElementById('mwrap').classList.add('open');
-  document.body.style.overflow='hidden';
+function scrollToSharkEl(el){
+  el.scrollIntoView({behavior:'smooth', block:'start'});
+  el.classList.add('flash');
+  setTimeout(()=>el.classList.remove('flash'), 1600);
 }
 
-async function saveProfile(ev){
-  ev.preventDefault();
-  const form = ev.target;
-  const fd = new FormData(form);
-  const body = Object.fromEntries(fd.entries());
-  let secret = syncSecret();
-  if (!secret) {
-    secret = window.prompt('Enter sync key (App Platform SYNC_SECRET):', '') || '';
-    if (!secret) return false;
-    sessionStorage.setItem('sdh_sync_secret', secret);
+function goToShark(name){
+  if(!name) return;
+  closeM();
+  if(!DATA.length && !Object.keys(PROFILES).length){
+    pendingShark=name;
+    return;
   }
-  const btn = form.querySelector('button[type="submit"]');
-  const prev = btn.textContent;
-  btn.disabled = true;
-  btn.textContent = 'Saving…';
-  try {
-    const res = await fetch('/api/profiles', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + secret,
-      },
-      body: JSON.stringify(body),
-    });
-    const data = await res.json().catch(() => ({}));
-    if (res.status === 401) {
-      sessionStorage.removeItem('sdh_sync_secret');
-      throw new Error('Wrong sync key');
-    }
-    if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
-    await loadCatalog();
-    closeM();
-  } catch (err) {
-    btn.disabled = false;
-    btn.textContent = prev;
-    window.alert('Could not save profile: ' + (err.message || err));
-  }
-  return false;
+  setSec('sharks');
+  const id=sharkId(name);
+  history.replaceState(null,'','#'+id);
+  requestAnimationFrame(()=>{
+    const el=document.getElementById(id);
+    if(el) scrollToSharkEl(el);
+  });
 }
 
 function openM(i){
   const d=DATA[i],p=products(d),dl=link(d.demo_link),gh=link(d.github),rec=link(d.recording);
-  const sec=(t,v)=>v?'<div class="m-sec"><h4>'+t+'</h4><div>'+esc(v)+'</div></div>':'';
+  const block=(t,v)=>v?'<div class="m-sec"><h4>'+t+'</h4><div>'+esc(v)+'</div></div>':'';
   document.getElementById('modal').innerHTML=
     '<button class="mclose" onclick="closeM()" aria-label="Close">✕</button>'+
     badge(d.status)+' <span class="date" style="margin-left:8px">'+esc(d.date||'')+'</span>'+
-    '<h2>'+esc(d.name)+'</h2><div class="m-owner">by '+esc(d.owner)+(d.stage?' · '+esc(d.stage):'')+(d.industry?' · '+esc(d.industry):'')+'</div>'+
+    '<h2>'+esc(d.name)+'</h2><div class="m-owner">by <button type="button" class="owner-link" onclick="goToShark('+JSON.stringify(d.owner)+')">'+esc(d.owner)+'</button>'+(d.stage?' · '+esc(d.stage):'')+(d.industry?' · '+esc(d.industry):'')+'</div>'+
     '<div class="tags">'+p.map(t=>'<span class="tag">'+esc(t)+'</span>').join('')+'</div>'+
-    sec('Use case / which call it can carry',d.use_case)+
-    sec('Pain point & value proposition',d.pain_value)+
-    sec('Demo brief',d.brief)+
-    sec('Client feedback / impact',d.feedback)+
-    ''+
+    block('Use case / which call it can carry',d.use_case)+
+    block('Pain point & value proposition',d.pain_value)+
+    block('Demo brief',d.brief)+
+    block('Client feedback / impact',d.feedback)+
     '<div class="m-links">'+
     (dl?'<a class="pri" href="'+esc(dl)+'" target="_blank" rel="noopener">Open live demo ↗</a>':'')+
     (gh?'<a href="'+esc(gh)+'" target="_blank" rel="noopener">GitHub repo</a>':'')+
     (rec?'<a href="'+esc(rec)+'" target="_blank" rel="noopener">Watch recording</a>':'')+
+    '<button type="button" onclick="goToShark('+JSON.stringify(d.owner)+')">Meet '+esc(d.owner.split(' ')[0])+' →</button>'+
     '</div>';
   document.getElementById('mwrap').classList.add('open');
   document.body.style.overflow='hidden';

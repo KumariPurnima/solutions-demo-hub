@@ -1,6 +1,6 @@
 const path = require('path');
 const express = require('express');
-const { getCatalog, upsertProfile, SHEET_ID } = require('./lib/catalog');
+const { getCatalog, SHEET_ID } = require('./lib/catalog');
 
 const app = express();
 const PORT = Number(process.env.PORT || 8080);
@@ -72,25 +72,6 @@ app.get('/api/catalog/refresh', async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ ok: false, error: err.message });
-  }
-});
-
-/** Add or update an SA profile (requires SYNC_SECRET). Writes data/profiles.json. */
-app.post('/api/profiles', async (req, res) => {
-  if (!SYNC_SECRET) {
-    return res.status(503).json({
-      ok: false,
-      error: 'SYNC_SECRET is not configured on App Platform',
-    });
-  }
-  if (!syncAuthorized(req)) {
-    return res.status(401).json({ ok: false, error: 'Unauthorized' });
-  }
-  try {
-    const saved = await upsertProfile(req.body || {});
-    res.json({ ok: true, name: saved.name, profile: saved.profile });
-  } catch (err) {
-    res.status(400).json({ ok: false, error: err.message });
   }
 });
 

@@ -1,4 +1,5 @@
 const path = require('path');
+const crypto = require('crypto');
 const express = require('express');
 const { getCatalog, SHEET_ID } = require('./lib/catalog');
 
@@ -7,9 +8,49 @@ const PORT = Number(process.env.PORT || 8080);
 const publicDir = path.join(__dirname, '..', 'public');
 const SYNC_SECRET = process.env.SYNC_SECRET || '';
 const SYNC_WEBHOOK_URL = process.env.SYNC_WEBHOOK_URL || '';
+const SITE_USERNAME = process.env.SITE_USERNAME || 'solutions';
+const SITE_PASSWORD = process.env.SITE_PASSWORD || '';
 
 app.disable('x-powered-by');
 app.use(express.json({ limit: '32kb' }));
+
+function safeEqual(a, b) {
+  const aa = Buffer.from(String(a));
+  const bb = Buffer.from(String(b));
+  const len = Math.max(aa.length, bb.length, 1);
+  const pa = Buffer.alloc(len);
+  const pb = Buffer.alloc(len);
+  aa.copy(pa);
+  bb.copy(pb);
+  return aa.length === bb.length && crypto.timingSafeEqual(pa, pb);
+}
+
+/** Browser Basic Auth when SITE_PASSWORD is set. Health checks stay open. */
+function requireSiteAuth(req, res, next) {
+  if (!SITE_PASSWORD) return next();
+  if (req.path === '/api/health') return next();
+
+  const header = String(req.get('authorization') || '');
+  const match = header.match(/^Basic\s+(.+)$/i);
+  if (match) {
+    try {
+      const decoded = Buffer.from(match[1], 'base64').toString('utf8');
+      const colon = decoded.indexOf(':');
+      const user = colon >= 0 ? decoded.slice(0, colon) : decoded;
+      const pass = colon >= 0 ? decoded.slice(colon + 1) : '';
+      if (safeEqual(user, SITE_USERNAME) && safeEqual(pass, SITE_PASSWORD)) {
+        return next();
+      }
+    } catch {
+      /* fall through to 401 */
+    }
+  }
+
+  res.set('WWW-Authenticate', 'Basic realm="Solutions Demo Hub", charset="UTF-8"');
+  return res.status(401).send('Authentication required');
+}
+
+app.use(requireSiteAuth);
 
 function syncAuthorized(req) {
   if (!SYNC_SECRET) return false;
@@ -154,5 +195,6 @@ app.get('*', (_req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Solutions Demo Hub listening on :${PORT}`);
+  const auth = SITE_PASSWORD ? `basic-auth user=${SITE_USERNAME}` : 'open (no SITE_PASSWORD)';
+  console.log(`Solutions Demo Hub listening on :${PORT} (${auth})`);
 });

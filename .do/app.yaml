@@ -38,6 +38,13 @@ services:
         scope: RUN_TIME
         type: SECRET
         value: "${SYNC_WEBHOOK_URL}"
+      - key: SITE_USERNAME
+        scope: RUN_TIME
+        value: "solutions"
+      - key: SITE_PASSWORD
+        scope: RUN_TIME
+        type: SECRET
+        value: "${SITE_PASSWORD}"
       - key: NODE_ENV
         scope: RUN_TIME
         value: production

@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "type": "KB",
+    "owner": "Vasily Prokopov",
+    "title": "LLM Infrastructure Demands",
+    "link": "https://spider.vasilyprokopov.com/",
+    "use_case": "Aspider chart showing how each stage of \nan LLM\u2019s lifecycle stresses the three main\n infrastructure resources differently: \ncompute (FLOPs), memory (capacity/bandwidth), \nand network (interconnect).",
+    "industry": "Roofline-style analysis of LLM workloads.",
+    "products": ""
+  }
+]

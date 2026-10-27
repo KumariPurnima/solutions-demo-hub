@@ -17,7 +17,8 @@ const TAB = {
   demos: process.env.SHEET_TAB_DEMOS || 'Demo Tracker',
   profiles: process.env.SHEET_TAB_PROFILES || 'SA Profiles',
   kb: process.env.SHEET_TAB_KB || 'KB',
-  blog: process.env.SHEET_TAB_BLOG || 'Blog post',
+  // Live tracker tab is "Blog"; keep "Blog post" as an env override for older exports.
+  blog: process.env.SHEET_TAB_BLOG || 'Blog',
 };
 
 let cache = { at: 0, payload: null, source: 'none' };

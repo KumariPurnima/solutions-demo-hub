@@ -73,8 +73,9 @@ if 'SA Profiles' in wb.sheetnames:
         }
 
 content = []
-for tab, typ in [('KB', 'KB'), ('Blog post', 'Blog')]:
-    if tab not in wb.sheetnames: continue
+for tabs, typ in [(['KB'], 'KB'), (['Blog', 'Blog post'], 'Blog')]:
+    tab = next((t for t in tabs if t in wb.sheetnames), None)
+    if not tab: continue
     ws = wb[tab]
     hr = header(ws, ['Owner'])
     for i, row in enumerate(ws.iter_rows(values_only=True), 1):

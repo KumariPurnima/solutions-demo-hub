@@ -220,10 +220,10 @@ async function runSync(){
   btn.disabled = true;
   btn.textContent = 'Syncing…';
   try {
-    // Secret goes in the body so the browser can still send Basic Auth for the site gate.
     const res = await fetch('/api/sync', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
       body: JSON.stringify({ secret }),
     });
     const data = await res.json().catch(() => ({}));

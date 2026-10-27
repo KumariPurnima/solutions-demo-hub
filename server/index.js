@@ -10,6 +10,13 @@ const SYNC_SECRET = process.env.SYNC_SECRET || '';
 const SYNC_WEBHOOK_URL = process.env.SYNC_WEBHOOK_URL || '';
 const SITE_USERNAME = process.env.SITE_USERNAME || 'solutions';
 const SITE_PASSWORD = process.env.SITE_PASSWORD || '';
+const SESSION_COOKIE = 'sdh_session';
+const SESSION_DAYS = 7;
+const SESSION_SECRET =
+  process.env.SESSION_SECRET ||
+  (SITE_PASSWORD
+    ? crypto.createHash('sha256').update(`sdh:${SITE_PASSWORD}`).digest('hex')
+    : '');
 
 app.disable('x-powered-by');
 app.use(express.json({ limit: '32kb' }));
@@ -25,32 +32,130 @@ function safeEqual(a, b) {
   return aa.length === bb.length && crypto.timingSafeEqual(pa, pb);
 }
 
-/** Browser Basic Auth when SITE_PASSWORD is set. Health checks stay open. */
+function parseCookies(req) {
+  const raw = String(req.get('cookie') || '');
+  const out = {};
+  raw.split(';').forEach((part) => {
+    const i = part.indexOf('=');
+    if (i < 0) return;
+    const k = part.slice(0, i).trim();
+    const v = part.slice(i + 1).trim();
+    if (k) out[k] = decodeURIComponent(v);
+  });
+  return out;
+}
+
+function signSession(username) {
+  const exp = Date.now() + SESSION_DAYS * 24 * 60 * 60 * 1000;
+  const payload = Buffer.from(JSON.stringify({ u: username, exp }), 'utf8').toString(
+    'base64url'
+  );
+  const sig = crypto
+    .createHmac('sha256', SESSION_SECRET)
+    .update(payload)
+    .digest('base64url');
+  return `${payload}.${sig}`;
+}
+
+function verifySession(token) {
+  if (!token || !SESSION_SECRET) return null;
+  const parts = String(token).split('.');
+  if (parts.length !== 2) return null;
+  const [payload, sig] = parts;
+  const expected = crypto
+    .createHmac('sha256', SESSION_SECRET)
+    .update(payload)
+    .digest('base64url');
+  if (!safeEqual(sig, expected)) return null;
+  try {
+    const data = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'));
+    if (!data || typeof data.u !== 'string' || !data.exp) return null;
+    if (Date.now() > Number(data.exp)) return null;
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+function setSessionCookie(res, token) {
+  const secure = process.env.NODE_ENV === 'production' ? '; Secure' : '';
+  res.setHeader(
+    'Set-Cookie',
+    `${SESSION_COOKIE}=${encodeURIComponent(token)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${SESSION_DAYS * 24 * 60 * 60}${secure}`
+  );
+}
+
+function clearSessionCookie(res) {
+  const secure = process.env.NODE_ENV === 'production' ? '; Secure' : '';
+  res.setHeader(
+    'Set-Cookie',
+    `${SESSION_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${secure}`
+  );
+}
+
+function wantsHtml(req) {
+  const accept = String(req.get('accept') || '');
+  return accept.includes('text/html');
+}
+
+function isPublicPath(reqPath) {
+  return (
+    reqPath === '/api/health' ||
+    reqPath === '/api/login' ||
+    reqPath === '/api/logout' ||
+    reqPath === '/login.html' ||
+    reqPath === '/login'
+  );
+}
+
+/** Cookie session gate when SITE_PASSWORD is set. Health + login stay open. */
 function requireSiteAuth(req, res, next) {
   if (!SITE_PASSWORD) return next();
-  if (req.path === '/api/health') return next();
+  if (isPublicPath(req.path)) return next();
 
-  const header = String(req.get('authorization') || '');
-  const match = header.match(/^Basic\s+(.+)$/i);
-  if (match) {
-    try {
-      const decoded = Buffer.from(match[1], 'base64').toString('utf8');
-      const colon = decoded.indexOf(':');
-      const user = colon >= 0 ? decoded.slice(0, colon) : decoded;
-      const pass = colon >= 0 ? decoded.slice(colon + 1) : '';
-      if (safeEqual(user, SITE_USERNAME) && safeEqual(pass, SITE_PASSWORD)) {
-        return next();
-      }
-    } catch {
-      /* fall through to 401 */
-    }
+  const cookies = parseCookies(req);
+  const session = verifySession(cookies[SESSION_COOKIE]);
+  if (session) {
+    req.siteUser = session.u;
+    return next();
   }
 
-  res.set('WWW-Authenticate', 'Basic realm="Solutions Demo Hub", charset="UTF-8"');
-  return res.status(401).send('Authentication required');
+  if (req.path.startsWith('/api/')) {
+    return res.status(401).json({ ok: false, error: 'Authentication required' });
+  }
+
+  if (wantsHtml(req) || req.method === 'GET') {
+    const nextUrl = encodeURIComponent(req.originalUrl || '/');
+    return res.redirect(302, `/login.html?next=${nextUrl}`);
+  }
+
+  return res.status(401).json({ ok: false, error: 'Authentication required' });
 }
 
 app.use(requireSiteAuth);
+
+app.post('/api/login', (req, res) => {
+  if (!SITE_PASSWORD) {
+    return res.json({ ok: true, auth: 'disabled' });
+  }
+  const username = String(req.body?.username || '').trim();
+  const password = String(req.body?.password || '');
+  if (!safeEqual(username, SITE_USERNAME) || !safeEqual(password, SITE_PASSWORD)) {
+    return res.status(401).json({ ok: false, error: 'Invalid username or password' });
+  }
+  const token = signSession(username);
+  setSessionCookie(res, token);
+  return res.json({ ok: true });
+});
+
+app.post('/api/logout', (_req, res) => {
+  clearSessionCookie(res);
+  res.json({ ok: true });
+});
+
+app.get('/login', (_req, res) => {
+  res.redirect(302, '/login.html');
+});
 
 function syncAuthorized(req) {
   if (!SYNC_SECRET) return false;
@@ -74,6 +179,7 @@ app.get('/api/health', async (_req, res) => {
       fetchedAt: catalog.fetchedAt,
       cached: catalog.cached,
       syncConfigured: Boolean(SYNC_SECRET && SYNC_WEBHOOK_URL),
+      authEnabled: Boolean(SITE_PASSWORD),
     });
   } catch (err) {
     res.status(500).json({ ok: false, error: err.message });
@@ -83,7 +189,7 @@ app.get('/api/health', async (_req, res) => {
 app.get('/api/catalog', async (_req, res) => {
   try {
     const catalog = await getCatalog();
-    res.set('Cache-Control', 'public, max-age=30');
+    res.set('Cache-Control', 'private, max-age=30');
     res.json({
       demos: catalog.demos,
       profiles: catalog.profiles,
@@ -195,6 +301,8 @@ app.get('*', (_req, res) => {
 });
 
 app.listen(PORT, () => {
-  const auth = SITE_PASSWORD ? `basic-auth user=${SITE_USERNAME}` : 'open (no SITE_PASSWORD)';
+  const auth = SITE_PASSWORD
+    ? `cookie-auth user=${SITE_USERNAME}`
+    : 'open (no SITE_PASSWORD)';
   console.log(`Solutions Demo Hub listening on :${PORT} (${auth})`);
 });

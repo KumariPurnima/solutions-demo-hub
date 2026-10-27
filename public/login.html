@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Enter · Solutions Demo Hub</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Manrope:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#04050A; --txt:#F2F4FA; --sub:#8A93B0; --mut:#5A6283;
+  --blue:#0080FF; --blue-l:#5FB2FF; --line:#1E2235;
+  --sans:'Manrope',system-ui,sans-serif; --disp:'Sora','Manrope',sans-serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{
+  background:radial-gradient(1200px 700px at 50% -10%, #0B1E3D 0%, var(--bg) 55%);
+  color:var(--txt);font-family:var(--sans);
+}
+canvas#bg{
+  position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0;
+}
+.vignette{
+  position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 45%, transparent 30%, rgba(4,5,10,.72) 100%),
+    linear-gradient(180deg, rgba(0,128,255,.08), transparent 35%, rgba(4,5,10,.55));
+}
+.stage{
+  position:relative;z-index:2;min-height:100%;
+  display:flex;align-items:center;justify-content:center;
+  padding:28px 18px;perspective:1400px;
+}
+.card-wrap{
+  position:relative;
+  transform-style:preserve-3d;
+  animation:riseIn 1.05s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes riseIn{
+  from{opacity:0;transform:translateY(48px) rotateX(18deg) scale(.88)}
+  to{opacity:1;transform:translateY(0) rotateX(0) scale(1)}
+}
+.glow{
+  position:absolute;inset:-40px;border-radius:40px;z-index:-1;
+  background:conic-gradient(from 180deg at 50% 50%, #0080FF55, #5FB2FF22, #3FDE9C33, #B7A6F744, #0080FF55);
+  filter:blur(28px);opacity:.55;
+  animation:spinGlow 10s linear infinite;
+}
+@keyframes spinGlow{to{transform:rotate(360deg)}}
+.card{
+  width:min(420px,92vw);
+  padding:36px 34px 30px;
+  border-radius:22px;
+  background:linear-gradient(160deg, rgba(18,22,40,.82), rgba(8,10,20,.92));
+  border:1px solid rgba(95,178,255,.28);
+  box-shadow:
+    0 2px 0 rgba(95,178,255,.18) inset,
+    0 -40px 80px rgba(0,128,255,.08) inset,
+    0 40px 80px rgba(0,0,0,.55),
+    0 0 0 1px rgba(255,255,255,.03);
+  backdrop-filter:blur(18px);
+  transform-style:preserve-3d;
+  transition:transform .12s ease-out, box-shadow .2s;
+  will-change:transform;
+}
+.card::before{
+  content:"";position:absolute;inset:0;border-radius:22px;pointer-events:none;
+  background:linear-gradient(125deg, rgba(255,255,255,.14), transparent 38%, transparent 62%, rgba(0,128,255,.1));
+  mix-blend-mode:screen;opacity:.55;
+}
+.brand{
+  display:flex;align-items:center;gap:12px;margin-bottom:22px;
+  transform:translateZ(36px);
+}
+.domark{
+  width:36px;height:36px;border-radius:50%;background:var(--blue);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 28px rgba(0,128,255,.55), 0 8px 18px rgba(0,0,0,.4);
+  animation:pulse 2.8s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%,100%{box-shadow:0 0 22px rgba(0,128,255,.45), 0 8px 18px rgba(0,0,0,.4)}
+  50%{box-shadow:0 0 42px rgba(0,128,255,.85), 0 8px 18px rgba(0,0,0,.4)}
+}
+.domark i{width:14px;height:14px;border-radius:50% 50% 0 50%;background:#04050A;transform:rotate(45deg);display:block}
+.brand span{font-family:var(--disp);font-weight:600;font-size:15px;letter-spacing:.2px}
+.eyebrow{
+  font-family:var(--mono);font-size:11px;letter-spacing:3px;color:var(--blue-l);
+  margin-bottom:10px;transform:translateZ(40px);
+}
+h1{
+  font-family:var(--disp);font-size:clamp(28px,5vw,34px);font-weight:700;line-height:1.1;
+  margin-bottom:8px;transform:translateZ(48px);
+  text-shadow:0 10px 40px rgba(0,128,255,.25);
+}
+.sub{color:var(--sub);font-size:14px;margin-bottom:26px;transform:translateZ(32px);max-width:34ch}
+form{display:flex;flex-direction:column;gap:14px;transform:translateZ(56px)}
+label{font-family:var(--mono);font-size:11px;letter-spacing:1.5px;color:var(--mut);text-transform:uppercase}
+.field{
+  position:relative;margin-top:6px;
+}
+.field input{
+  width:100%;padding:14px 16px;border-radius:12px;
+  background:rgba(6,8,16,.75);border:1px solid rgba(42,47,69,.95);
+  color:var(--txt);font-family:var(--sans);font-size:15px;
+  outline:none;transition:border-color .15s, box-shadow .15s, transform .15s;
+  box-shadow:0 10px 30px rgba(0,0,0,.25) inset;
+}
+.field input:focus{
+  border-color:var(--blue);
+  box-shadow:0 0 0 3px rgba(0,128,255,.18), 0 10px 30px rgba(0,0,0,.25) inset;
+  transform:translateZ(8px);
+}
+.btn{
+  margin-top:8px;appearance:none;border:none;cursor:pointer;
+  border-radius:999px;padding:14px 20px;font-family:var(--disp);font-weight:700;font-size:15px;
+  color:#fff;background:linear-gradient(135deg, #0090FF, #0066CC 55%, #004EA8);
+  box-shadow:0 12px 30px rgba(0,128,255,.35), 0 1px 0 rgba(255,255,255,.25) inset;
+  transition:transform .15s, box-shadow .15s, filter .15s;
+  position:relative;overflow:hidden;
+}
+.btn::after{
+  content:"";position:absolute;inset:-40% -20%;
+  background:linear-gradient(115deg, transparent 30%, rgba(255,255,255,.35) 50%, transparent 70%);
+  transform:translateX(-120%);
+  animation:sheen 3.2s ease-in-out infinite;
+}
+@keyframes sheen{
+  0%,60%{transform:translateX(-120%)}
+  80%,100%{transform:translateX(120%)}
+}
+.btn:hover{transform:translateY(-2px) translateZ(12px);box-shadow:0 18px 40px rgba(0,128,255,.45)}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.65;cursor:wait;transform:none}
+.err{
+  min-height:18px;font-size:13px;color:#FF7B7B;opacity:0;transition:opacity .2s;
+  transform:translateZ(40px);
+}
+.err.show{opacity:1}
+.card.shake{animation:shake .45s cubic-bezier(.36,.07,.19,.97)}
+@keyframes shake{
+  10%,90%{transform:translateX(-2px)}
+  20%,80%{transform:translateX(4px)}
+  30%,50%,70%{transform:translateX(-8px)}
+  40%,60%{transform:translateX(8px)}
+}
+.hint{margin-top:18px;font-size:12px;color:var(--mut);text-align:center;transform:translateZ(24px)}
+@media(prefers-reduced-motion:reduce){
+  .card-wrap,.glow,.domark,.btn::after{animation:none}
+  .card{transition:none}
+}
+</style>
+</head>
+<body>
+<canvas id="bg" aria-hidden="true"></canvas>
+<div class="vignette"></div>
+<div class="stage">
+  <div class="card-wrap" id="wrap">
+    <div class="glow" aria-hidden="true"></div>
+    <div class="card" id="card" role="dialog" aria-labelledby="login-title">
+      <div class="brand"><span class="domark"><i></i></span><span>Solutions Demo Hub</span></div>
+      <div class="eyebrow">RESTRICTED ACCESS</div>
+      <h1 id="login-title">Enter the hub.</h1>
+      <p class="sub">Solutions team field catalog — sign in to browse demos, sharks, and playbooks.</p>
+      <form id="form" autocomplete="on">
+        <div>
+          <label for="user">Username</label>
+          <div class="field"><input id="user" name="username" autocomplete="username" required value="solutions"></div>
+        </div>
+        <div>
+          <label for="pass">Password</label>
+          <div class="field"><input id="pass" name="password" type="password" autocomplete="current-password" required autofocus></div>
+        </div>
+        <div class="err" id="err" role="alert"></div>
+        <button class="btn" id="btn" type="submit">Unlock catalog →</button>
+      </form>
+      <p class="hint">Internal use · DigitalOcean Solutions</p>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  const card=document.getElementById('card');
+  const wrap=document.getElementById('wrap');
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!reduced){
+    wrap.addEventListener('mousemove',e=>{
+      const r=card.getBoundingClientRect();
+      const x=(e.clientX-r.left)/r.width-.5;
+      const y=(e.clientY-r.top)/r.height-.5;
+      card.style.transform='rotateY('+ (x*18) +'deg) rotateX('+ (-y*14) +'deg) translateZ(12px)';
+    });
+    wrap.addEventListener('mouseleave',()=>{ card.style.transform=''; });
+  }
+
+  const params=new URLSearchParams(location.search);
+  const next=params.get('next')||'/';
+
+  document.getElementById('form').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const btn=document.getElementById('btn');
+    const err=document.getElementById('err');
+    err.classList.remove('show'); err.textContent='';
+    btn.disabled=true; btn.textContent='Authenticating…';
+    try{
+      const res=await fetch('/api/login',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        credentials:'same-origin',
+        body:JSON.stringify({
+          username:document.getElementById('user').value.trim(),
+          password:document.getElementById('pass').value,
+        }),
+      });
+      const data=await res.json().catch(()=>({}));
+      if(!res.ok){
+        throw new Error(data.error||'Invalid credentials');
+      }
+      btn.textContent='Access granted';
+      location.replace(next.startsWith('/')?next:'/');
+    }catch(ex){
+      err.textContent=ex.message||'Login failed';
+      err.classList.add('show');
+      card.classList.remove('shake');
+      void card.offsetWidth;
+      card.classList.add('shake');
+      btn.disabled=false; btn.textContent='Unlock catalog →';
+    }
+  });
+})();
+
+/* Full-viewport 3D field */
+(function(){
+  const cv=document.getElementById('bg'),ctx=cv.getContext('2d');
+  let W,H,mx=0,my=0;
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function size(){
+    W=innerWidth;H=innerHeight;
+    cv.width=W*devicePixelRatio;cv.height=H*devicePixelRatio;
+    ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+  }
+  size();addEventListener('resize',size);
+  addEventListener('mousemove',e=>{mx=e.clientX/innerWidth-.5;my=e.clientY/innerHeight-.5});
+  const PHI=(1+Math.sqrt(5))/2;
+  const V=[[-1,PHI,0],[1,PHI,0],[-1,-PHI,0],[1,-PHI,0],[0,-1,PHI],[0,1,PHI],[0,-1,-PHI],[0,1,-PHI],[PHI,0,-1],[PHI,0,1],[-PHI,0,-1],[-PHI,0,1]]
+    .map(v=>{const l=Math.hypot(...v);return v.map(x=>x/l*2.05)});
+  const E=[];
+  for(let i=0;i<12;i++)for(let j=i+1;j<12;j++){
+    const d=Math.hypot(V[i][0]-V[j][0],V[i][1]-V[j][1],V[i][2]-V[j][2]);
+    if(d<1.9)E.push([i,j]);
+  }
+  const P=Array.from({length:220},()=>({
+    x:(Math.random()-.5)*22,y:(Math.random()-.5)*14,z:(Math.random()-.5)*16,s:Math.random()*1.8+.4
+  }));
+  function rot(v,ax,ay){
+    let[x,y,z]=v;
+    let c=Math.cos(ay),s=Math.sin(ay);[x,z]=[x*c-z*s,x*s+z*c];
+    c=Math.cos(ax);s=Math.sin(ax);[y,z]=[y*c-z*s,y*s+z*c];
+    return[x,y,z];
+  }
+  function proj(v,cx,cy,scale){
+    const f=6/(6+v[2]);
+    return[cx+v[0]*scale*f,cy+v[1]*scale*f,f,v[2]];
+  }
+  function frame(t){
+    ctx.clearRect(0,0,W,H);
+    const ay=t*0.00028+mx*0.9, ax=0.35+t*0.00012+my*0.55;
+    const cx=W*0.5, cy=H*0.48;
+    const scale=Math.min(W,H)*0.13;
+
+    ctx.fillStyle='#2A5FA8';
+    P.forEach(p=>{
+      const r=rot([p.x,p.y,p.z],ax*0.35,ay*0.3);
+      const[sx,sy,f]=proj(r,cx,cy,scale*0.55);
+      ctx.globalAlpha=0.25+0.45*f;
+      ctx.beginPath();ctx.arc(sx,sy,p.s*f,0,7);ctx.fill();
+    });
+
+    const rv=V.map(v=>rot(v,ax,ay));
+    ctx.lineWidth=1.4;
+    E.forEach(([a,b])=>{
+      const A=proj(rv[a],cx,cy,scale),B=proj(rv[b],cx,cy,scale);
+      const g=ctx.createLinearGradient(A[0],A[1],B[0],B[1]);
+      g.addColorStop(0,'rgba(0,128,255,'+(0.15+0.45*A[2])+')');
+      g.addColorStop(1,'rgba(95,178,255,'+(0.15+0.45*B[2])+')');
+      ctx.strokeStyle=g;ctx.globalAlpha=1;
+      ctx.beginPath();ctx.moveTo(A[0],A[1]);ctx.lineTo(B[0],B[1]);ctx.stroke();
+    });
+    rv.forEach(v=>{
+      const[sx,sy,f]=proj(v,cx,cy,scale);
+      ctx.globalAlpha=0.95*f;
+      ctx.fillStyle='#9FD0FF';
+      ctx.beginPath();ctx.arc(sx,sy,2.6*f,0,7);ctx.fill();
+      ctx.globalAlpha=0.25*f;
+      ctx.beginPath();ctx.arc(sx,sy,9*f,0,7);ctx.fill();
+    });
+
+    [[2.6,-t*0.00035,'rgba(95,178,255,.55)'],[3.35,t*0.00022,'rgba(0,128,255,.35)'],[4.1,-t*0.00018,'rgba(63,222,156,.22)']].forEach(([R,sp,col])=>{
+      ctx.strokeStyle=col;ctx.lineWidth=1.3;ctx.globalAlpha=1;ctx.beginPath();
+      for(let a=0;a<=96;a++){
+        const th=a/96*Math.PI*2;
+        const v=rot([Math.cos(th)*R,Math.sin(th)*R*0.35,Math.sin(th)*R],ax+1.1+sp,ay*0.7+sp*2);
+        const[sx,sy]=proj(v,cx,cy,scale*0.72);
+        a?ctx.lineTo(sx,sy):ctx.moveTo(sx,sy);
+      }
+      ctx.stroke();
+    });
+
+    ctx.globalAlpha=1;
+    if(!reduced) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

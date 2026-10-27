@@ -4,22 +4,22 @@ Public catalog of every demo built by the **DigitalOcean Solutions** team — br
 
 ```
 Google Sheet (private source of truth)
-  Demo Tracker · SA Profiles · KB · Blog post · Summary
+  Demo Tracker · SA Profiles · KB · Blog · Summary
                  │
-                 │  shared Viewer → Google service account only
+                 │  export / sync → data/*.json
                  ▼
         App Platform (this repo)
         Express  ·  GET /api/catalog  ·  static UI
                  │
                  ▼
-        Public URL  (*.ondigitalocean.app)
+        Password-gated URL  (*.ondigitalocean.app)
 ```
 
 - **By owner / All demos** — owner sections sorted alphabetically, with profile hooks from the `SA Profiles` tab.
 - **Four filters + search** — Owner, Use case stage, Industry / vertical, Products used, plus free-text search.
-- **Blog & KB** — rows from the `KB` and `Blog post` tabs.
-- **Live sheet sync** — production reads the sheet with a Google service account (sheet stays private; site is public).
-- **Local JSON fallback** — `data/*.json` keeps the hub usable without credentials.
+- **Blog & KB** — rows from the `KB` and `Blog` tabs.
+- **Sheet sync** — refresh `data/*.json` from a spreadsheet export (`npm run sync:local`), then deploy so the site serves that catalog.
+- **Site login** — optional `SITE_PASSWORD` shows a custom login page; `/api/health` stays open for App Platform checks.
 
 ## Run locally
 
@@ -30,15 +30,13 @@ npm install
 npm start          # http://localhost:8080
 ```
 
-Without `GOOGLE_SERVICE_ACCOUNT_JSON`, the API serves `data/demos.json`, `data/profiles.json`, and `data/content.json`.
+The API serves `data/demos.json`, `data/profiles.json`, and `data/content.json`.
 
-Refresh those files from a local spreadsheet export:
+Refresh those files from a spreadsheet export:
 
 ```bash
 npm run sync:local -- ~/Downloads/Solutions_Demo_Tracker.xlsx
 ```
-
-Optional live Sheets locally — copy `.env.example` → `.env`, paste the service account JSON, share the sheet with that SA email as **Viewer**, then restart.
 
 | Script | What it does |
 | --- | --- |
@@ -53,25 +51,17 @@ Optional live Sheets locally — copy `.env.example` → `.env`, paste the servi
 | Demo Tracker | `demos[]` | `{ owner, name, stage, use_case, industry, products, pain_value, brief, demo_link, github, recording, status, date, feedback, notes }` |
 | SA Profiles | `profiles` | `{ [ownerName]: { title, location, bio, photo, linkedin, github } }` |
 | KB | `content[]` (`type: "KB"`) | `{ type, owner, title, link, use_case, industry, products }` |
-| Blog post | `content[]` (`type: "Blog"`) | same |
+| Blog | `content[]` (`type: "Blog"`) | same |
 
 Owner names must match across tabs — that is the join key for profiles and content.
 
 Internal-only notes (e.g. vault / 1Password references) are stripped from the public API.
 
-## Service account setup (private sheet → public site)
-
-1. In Google Cloud Console create a project (or reuse one) → **APIs & Services → Enable Google Sheets API**.
-2. **IAM → Service accounts → Create**. Download a JSON key.
-3. Open [Solutions_Demo_Tracker](https://docs.google.com/spreadsheets/d/1AUYS2mF28aLeHb8LSq6FNXZD9lM7Qva4ey4t79vGHJo/edit) → **Share** → add the service account email as **Viewer** (not “anyone with the link”).
-4. In DigitalOcean App Platform, set secret `GOOGLE_SERVICE_ACCOUNT_JSON` to the JSON (raw one-line or base64).
-5. Confirm `GOOGLE_SHEET_ID=1AUYS2mF28aLeHb8LSq6FNXZD9lM7Qva4ey4t79vGHJo`.
-
-`GET /api/health` reports `source: "google-sheets"` when live, or `local-json` when falling back.
+`GET /api/health` reports `source: "local-json"` when serving the committed `data/*.json` files.
 
 ## Deploy to DigitalOcean App Platform
 
-`.do/app.yaml` defines a Node service (not a static site — the server must call Sheets).
+`.do/app.yaml` defines a Node service on App Platform.
 
 ```bash
 # after the GitHub repo exists and secrets are ready
@@ -80,7 +70,7 @@ doctl apps create --spec .do/app.yaml
 doctl apps update <APP_ID> --spec .do/app.yaml
 ```
 
-Or Control Panel: **Create → Apps → GitHub → `KumariPurnima/solutions-demo-hub`** → set the secret env vars → Deploy.
+Or Control Panel: **Create → Apps → GitHub → `KumariPurnima/solutions-demo-hub`** → set env secrets (`SITE_PASSWORD`, optional sync secrets) → Deploy.
 
 With `deploy_on_push: true`, every push to `main` redeploys.
 
@@ -88,9 +78,10 @@ With `deploy_on_push: true`, every push to `main` redeploys.
 
 ```
 public/index.html     UI (filters, A–Z owners, Blog & KB, canvas hero)
-server/index.js       Express: /api/catalog, /api/health, static
-server/lib/catalog.js Sheets client + local JSON fallback + 60s cache
-data/                 Fallback JSON exports of the sheet tabs
+public/login.html     Custom 3D login gate
+server/index.js       Express: /api/catalog, /api/health, /api/login, static
+server/lib/catalog.js Catalog loader + cache (local JSON; optional sheet fetch)
+data/                 JSON exports of the sheet tabs (served in production)
 scripts/              Offline xlsx → JSON sync
 .do/app.yaml          App Platform spec
 docs/                 Screenshots / notes

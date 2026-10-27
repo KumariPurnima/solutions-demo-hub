@@ -1,0 +1,9 @@
+node_modules/
+.env
+.env.local
+*.pem
+service-account*.json
+_from_zip/
+_sheet.xlsx
+.DS_Store
+npm-debug.log*

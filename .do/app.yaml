@@ -1,0 +1,30 @@
+name: solutions-demo-hub
+region: nyc
+services:
+  - name: web
+    github:
+      repo: KumariPurnima/solutions-demo-hub
+      branch: main
+      deploy_on_push: true
+    source_dir: /
+    environment_slug: node-js
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    http_port: 8080
+    routes:
+      - path: /
+    run_command: npm start
+    envs:
+      - key: GOOGLE_SHEET_ID
+        scope: RUN_TIME
+        value: "1AUYS2mF28aLeHb8LSq6FNXZD9lM7Qva4ey4t79vGHJo"
+      - key: GOOGLE_SERVICE_ACCOUNT_JSON
+        scope: RUN_TIME
+        type: SECRET
+        value: "${GOOGLE_SERVICE_ACCOUNT_JSON}"
+      - key: CATALOG_CACHE_MS
+        scope: RUN_TIME
+        value: "60000"
+      - key: NODE_ENV
+        scope: RUN_TIME
+        value: production

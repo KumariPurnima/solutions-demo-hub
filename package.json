@@ -1,0 +1,19 @@
+{
+  "name": "solutions-demo-hub",
+  "version": "1.0.0",
+  "private": true,
+  "description": "DigitalOcean Solutions team demo catalog — App Platform + Google Sheets",
+  "main": "server/index.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "sync:local": "node scripts/sync-from-xlsx.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "googleapis": "^144.0.0"
+  }
+}

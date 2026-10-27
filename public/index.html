@@ -106,7 +106,7 @@ h1{font-family:var(--disp);font-size:clamp(30px,5vw,46px);font-weight:700;line-h
 footer{border-top:1px solid var(--line);margin-top:50px;padding:20px 0 30px}
 .foot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--mut)}
 .empty{text-align:center;color:var(--mut);padding:60px 0;font-size:14px}
-@media(max-width:640px){.nav-r .vbtn{display:none}.own-links{display:none}.own-bio{margin-left:0}}
+@media(max-width:640px){.nav-r .vbtn{display:none}.nav-r #sync-btn{display:inline-flex}.own-links{display:none}.own-bio{margin-left:0}}
 @media(prefers-reduced-motion:reduce){.card{transition:none}}
 :focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 </style>
@@ -121,6 +121,7 @@ footer{border-top:1px solid var(--line);margin-top:50px;padding:20px 0 30px}
     <span style="width:1px;height:20px;background:var(--line2)"></span>
     <button class="vbtn on" id="v-owner" onclick="setView('owner')">By owner</button>
     <button class="vbtn" id="v-all" onclick="setView('all')">All demos</button>
+    <button class="vbtn" id="sync-btn" type="button" onclick="runSync()" title="Pull latest sheet data into this site">Sync sheet</button>
     <button class="submit" onclick="window.open(SHEET_URL,'_blank')">Submit a demo</button>
   </div>
 </div></nav>
@@ -173,6 +174,47 @@ async function loadCatalog(){
   if (payload.sheetUrl) document.getElementById('sheetlink').href = payload.sheetUrl;
   initFilters();
   apply();
+}
+
+function syncSecret(){
+  return sessionStorage.getItem('sdh_sync_secret') || '';
+}
+
+async function runSync(){
+  const btn = document.getElementById('sync-btn');
+  let secret = syncSecret();
+  if (!secret) {
+    secret = window.prompt('Enter sync key (App Platform SYNC_SECRET):', '') || '';
+    if (!secret) return;
+    sessionStorage.setItem('sdh_sync_secret', secret);
+  }
+  const prev = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Syncing…';
+  try {
+    const res = await fetch('/api/sync', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + secret,
+      },
+      body: JSON.stringify({}),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.status === 401) {
+      sessionStorage.removeItem('sdh_sync_secret');
+      throw new Error('Wrong sync key');
+    }
+    if (!res.ok) throw new Error(data.error || data.message || data.webhookError || ('HTTP ' + res.status));
+    btn.textContent = data.webhookTriggered ? 'Queued' : 'Refreshed';
+    await loadCatalog();
+    window.alert(data.message || 'Sync requested.');
+    setTimeout(() => { btn.textContent = prev; btn.disabled = false; }, 2500);
+  } catch (err) {
+    btn.textContent = prev;
+    btn.disabled = false;
+    window.alert('Sync failed: ' + (err.message || err));
+  }
 }
 
 function initFilters(){

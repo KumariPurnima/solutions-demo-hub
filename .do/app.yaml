@@ -2,10 +2,9 @@ name: solutions-demo-hub
 region: nyc
 services:
   - name: web
-    github:
-      repo: KumariPurnima/solutions-demo-hub
+    git:
+      repo_clone_url: https://github.com/KumariPurnima/solutions-demo-hub.git
       branch: main
-      deploy_on_push: true
     source_dir: /
     environment_slug: node-js
     instance_count: 1
@@ -14,17 +13,31 @@ services:
     routes:
       - path: /
     run_command: npm start
+    health_check:
+      http_path: /api/health
+      initial_delay_seconds: 10
+      period_seconds: 10
+      timeout_seconds: 5
+      success_threshold: 1
+      failure_threshold: 3
     envs:
       - key: GOOGLE_SHEET_ID
         scope: RUN_TIME
         value: "1AUYS2mF28aLeHb8LSq6FNXZD9lM7Qva4ey4t79vGHJo"
-      - key: GOOGLE_SERVICE_ACCOUNT_JSON
+      - key: GOOGLE_SHEETS_PUBLIC
         scope: RUN_TIME
-        type: SECRET
-        value: "${GOOGLE_SERVICE_ACCOUNT_JSON}"
+        value: "true"
       - key: CATALOG_CACHE_MS
         scope: RUN_TIME
         value: "60000"
+      - key: SYNC_SECRET
+        scope: RUN_TIME
+        type: SECRET
+        value: "${SYNC_SECRET}"
+      - key: SYNC_WEBHOOK_URL
+        scope: RUN_TIME
+        type: SECRET
+        value: "${SYNC_WEBHOOK_URL}"
       - key: NODE_ENV
         scope: RUN_TIME
         value: production

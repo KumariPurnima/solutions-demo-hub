@@ -8,6 +8,10 @@ const SHEET_ID =
 const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/edit`;
 const CACHE_MS = Number(process.env.CATALOG_CACHE_MS || 60_000);
 const DATA_DIR = path.join(__dirname, '..', '..', 'data');
+// Option A: fetch CSV when the sheet is shared as "Anyone with the link" (Viewer).
+const PUBLIC_ENABLED = !['0', 'false', 'no'].includes(
+  String(process.env.GOOGLE_SHEETS_PUBLIC ?? 'true').toLowerCase()
+);
 
 const TAB = {
   demos: process.env.SHEET_TAB_DEMOS || 'Demo Tracker',
@@ -31,6 +35,46 @@ function sanitizeNotes(notes) {
   const n = cell(notes);
   if (/1password|vault|password|credential/i.test(n)) return '';
   return n;
+}
+
+function parseCsv(text) {
+  const rows = [];
+  let row = [];
+  let field = '';
+  let inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    const next = text[i + 1];
+    if (inQuotes) {
+      if (c === '"' && next === '"') {
+        field += '"';
+        i++;
+      } else if (c === '"') {
+        inQuotes = false;
+      } else {
+        field += c;
+      }
+      continue;
+    }
+    if (c === '"') {
+      inQuotes = true;
+    } else if (c === ',') {
+      row.push(field);
+      field = '';
+    } else if (c === '\n') {
+      row.push(field);
+      rows.push(row);
+      row = [];
+      field = '';
+    } else if (c !== '\r') {
+      field += c;
+    }
+  }
+  if (field.length || row.length) {
+    row.push(field);
+    rows.push(row);
+  }
+  return rows;
 }
 
 function parseDemos(rows) {
@@ -124,13 +168,26 @@ function loadFallback() {
   };
 }
 
+function catalogFromTabs(byTitle, source) {
+  return {
+    demos: parseDemos(byTitle[TAB.demos]),
+    profiles: parseProfiles(byTitle[TAB.profiles]),
+    content: [
+      ...parseContent(byTitle[TAB.kb], 'KB'),
+      ...parseContent(byTitle[TAB.blog], 'Blog'),
+    ],
+    sheetUrl: SHEET_URL,
+    source,
+    fetchedAt: new Date().toISOString(),
+  };
+}
+
 function serviceAccountCredentials() {
   const raw = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
   if (!raw) return null;
   try {
     return JSON.parse(raw);
   } catch {
-    // Allow base64-encoded JSON for App Platform env convenience.
     try {
       return JSON.parse(Buffer.from(raw, 'base64').toString('utf8'));
     } catch {
@@ -139,7 +196,37 @@ function serviceAccountCredentials() {
   }
 }
 
-async function fetchSheetRanges() {
+async function fetchPublicCsvTab(tabName) {
+  const url =
+    `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq` +
+    `?tqx=out:csv&sheet=${encodeURIComponent(tabName)}`;
+  const res = await fetch(url, {
+    headers: { 'User-Agent': 'solutions-demo-hub/1.0' },
+    redirect: 'follow',
+  });
+  const text = await res.text();
+  if (!res.ok) {
+    throw new Error(`Public sheet HTTP ${res.status} for tab "${tabName}"`);
+  }
+  if (/<!DOCTYPE html>/i.test(text) || /accounts\.google/i.test(text)) {
+    throw new Error(
+      `Sheet tab "${tabName}" is not publicly readable. Share as Anyone with the link → Viewer.`
+    );
+  }
+  return parseCsv(text);
+}
+
+async function fetchSheetRangesPublic() {
+  if (!PUBLIC_ENABLED) return null;
+  const titles = [TAB.demos, TAB.profiles, TAB.kb, TAB.blog];
+  const byTitle = {};
+  for (const title of titles) {
+    byTitle[title] = await fetchPublicCsvTab(title);
+  }
+  return byTitle;
+}
+
+async function fetchSheetRangesServiceAccount() {
   const creds = serviceAccountCredentials();
   if (!creds) return null;
 
@@ -165,26 +252,19 @@ async function fetchSheetRanges() {
 
 async function buildCatalog() {
   try {
-    const byTitle = await fetchSheetRanges();
-    if (byTitle) {
-      const demos = parseDemos(byTitle[TAB.demos]);
-      const profiles = parseProfiles(byTitle[TAB.profiles]);
-      const content = [
-        ...parseContent(byTitle[TAB.kb], 'KB'),
-        ...parseContent(byTitle[TAB.blog], 'Blog'),
-      ];
-      return {
-        demos,
-        profiles,
-        content,
-        sheetUrl: SHEET_URL,
-        source: 'google-sheets',
-        fetchedAt: new Date().toISOString(),
-      };
-    }
+    const saTabs = await fetchSheetRangesServiceAccount();
+    if (saTabs) return catalogFromTabs(saTabs, 'google-sheets');
   } catch (err) {
-    console.error('[catalog] Sheets fetch failed, using local JSON fallback:', err.message);
+    console.error('[catalog] Service-account Sheets fetch failed:', err.message);
   }
+
+  try {
+    const publicTabs = await fetchSheetRangesPublic();
+    if (publicTabs) return catalogFromTabs(publicTabs, 'google-sheets-public');
+  } catch (err) {
+    console.error('[catalog] Public Sheets fetch failed, using local JSON:', err.message);
+  }
+
   return loadFallback();
 }
 

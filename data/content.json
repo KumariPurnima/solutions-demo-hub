@@ -7,5 +7,23 @@
     "use_case": "Aspider chart showing how each stage of \nan LLM\u2019s lifecycle stresses the three main\n infrastructure resources differently: \ncompute (FLOPs), memory (capacity/bandwidth), \nand network (interconnect).",
     "industry": "Roofline-style analysis of LLM workloads.",
     "products": ""
+  },
+  {
+    "type": "KB",
+    "owner": "Diego Cabrejas",
+    "title": "GPU Specs and Comparison Tool",
+    "link": "https://gpu-bench-iq27a.ondigitalocean.app/",
+    "use_case": "Explore different GPU specs in detail. \nCompare them against each other, see Droplet info, \nSize an AI model on them, etc...",
+    "industry": "Quickly understand which GPU is \nbest suited for a given workload as well as \nwhat's available at DO.",
+    "products": ""
+  },
+  {
+    "type": "Blog",
+    "owner": "Diego Cabrejas",
+    "title": "Build an AI-Native Coding Agent That Turns Tickets into Reviewed Pull Requests with Managed Agents",
+    "link": "https://www.digitalocean.com/community/tutorials/ai-coding-agent-tickets-to-reviewed-pull-requests",
+    "use_case": "Coding agents",
+    "industry": "General",
+    "products": "Harness Runtime, Serverless Inference, Action Gateway, Triggers"
   }
 ]

@@ -270,5 +270,22 @@
     "date": "Oct 26, 2026",
     "feedback": "",
     "notes": ""
+  },
+  {
+    "owner": "Sri Charan Madhavapeddi",
+    "name": "Build it live\u201d image + copy generator for e-commerce",
+    "stage": "Intermediate \u2014 Exploring Advanced Features",
+    "use_case": "type a one-line product idea, and watch a product image (via the image generation endpoint) and marketing copy (chat completions) get generated side by side, with instant regenerate buttons for each independently. This is the one idea here that would showcase /v1/images/generations",
+    "industry": "Retail & E-commerce",
+    "products": "SI, App Platform",
+    "pain_value": "Marketing and dynamic image generation issue.",
+    "brief": "",
+    "demo_link": "https://ecommerce-image-demo-awfh9.ondigitalocean.app/",
+    "github": "https://github.com/smadhavapeddi/ecommerce-image-copy-demo",
+    "recording": "",
+    "status": "Live",
+    "date": "Oct 28, 2026",
+    "feedback": "",
+    "notes": ""
   }
 ]

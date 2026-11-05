@@ -287,5 +287,22 @@
     "date": "Oct 28, 2026",
     "feedback": "",
     "notes": ""
+  },
+  {
+    "owner": "Diego Cabrejas",
+    "name": "Semantic photo search with Agent Data Services and a Managed Agent",
+    "stage": "Intermediate \u2014 Exploring Advanced Features",
+    "use_case": "Calls about Agent Data Services, vector search / RAG over a customer\u2019s own content, or giving agents access to company data. Fits any customer with a library of images or documents they can only search by filename or tags today, and anyone asking \u201chow would an agent actually use our data?\u201d.",
+    "industry": "AI / ML Startups",
+    "products": "Agent Data Services, Managed Agents, SI, Spaces, App Platform",
+    "pain_value": "Images and documents can only be found by filename or hand-written tags, which nobody keeps up to date. \nPlain keyword or vector search takes questions literally (\"not cold\" pulls cold places closer) and can't handle multi-part requests\nAgents need a governed way to read company data, not a copy of it",
+    "brief": "A travel company's library of 20 destination photos on a \"light table\", all visible upfront so viewers can guess the answers before searching. The photos are ingested from Spaces by an Agent Data Services data flow that describes, embeds and indexes each one in a vector table.\n\nSearch: type a request in plain English (\"a romantic evening by the water\") and the best matches get circled in about a second, found by meaning rather than keywords.\n\nAsk the agent: the same request goes to a Managed Agent, which turns constraints into filters (\"not cold\" becomes exclude cold), splits multi-part requests into separate searches, and answers from what's in the photos. Each search it makes appears on screen as it happens, then its picks are circled.",
+    "demo_link": "https://ads-travel-search-96dkm.ondigitalocean.app  (password-protected)",
+    "github": "https://github.com/dcabrejas/ads-travel-search  (private for now)",
+    "recording": "will do",
+    "status": "Live",
+    "date": "May 11, 2026",
+    "feedback": "",
+    "notes": ""
   }
 ]
